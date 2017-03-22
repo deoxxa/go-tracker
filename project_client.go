@@ -55,6 +55,18 @@ func (p ProjectClient) StoryTasks(storyId int, query TaskQuery) (tasks []Task, e
 	return tasks, err
 }
 
+func (p ProjectClient) StoryComments(storyId int, query CommentsQuery) (comments []Comment, err error) {
+	url := fmt.Sprintf("/stories/%d/comments", storyId)
+
+	request, err := p.createRequest("GET", url, query.Query())
+	if err != nil {
+		return comments, err
+	}
+
+	_, err = p.conn.Do(request, &comments)
+	return comments, err
+}
+
 func (p ProjectClient) DeliverStoryWithComment(storyId int, comment string) error {
 	err := p.DeliverStory(storyId)
 	if err != nil {

@@ -329,6 +329,53 @@ var _ = Describe("Tracker Client", func() {
 		})
 	})
 
+	Describe("listing a story's comments", func() {
+		It("gets the story's comments", func() {
+			server.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("GET", "/services/v5/projects/99/stories/560/comments"),
+					verifyTrackerToken(),
+
+					ghttp.RespondWith(http.StatusOK, Fixture("comments.json")),
+				),
+			)
+
+			client := tracker.NewClient("api-token")
+
+			tasks, err := client.InProject(99).StoryComments(560, tracker.CommentsQuery{})
+			Ω(tasks).Should(HaveLen(2))
+			Ω(err).ToNot(HaveOccurred())
+		})
+
+		It("allows different queries to be made", func() {
+			server.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest(
+						"GET",
+						"/services/v5/projects/99/stories/560/activity",
+						"limit=2&occurred_after=1000000000000&occurred_before=1433091819000&offset=1&since_version=1",
+					),
+					verifyTrackerToken(),
+
+					ghttp.RespondWith(http.StatusOK, Fixture("activities.json")),
+				),
+			)
+
+			client := tracker.NewClient("api-token")
+
+			query := tracker.ActivityQuery{
+				Limit:          2,
+				Offset:         1,
+				OccurredBefore: 1433091819000,
+				OccurredAfter:  1000000000000,
+				SinceVersion:   1,
+			}
+			activities, err := client.InProject(99).StoryActivity(560, query)
+			Ω(activities).Should(HaveLen(4))
+			Ω(err).ToNot(HaveOccurred())
+		})
+	})
+
 	Describe("delivering a story", func() {
 		It("HTTP PUTs it in its place", func() {
 			server.AppendHandlers(
