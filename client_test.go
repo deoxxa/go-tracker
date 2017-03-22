@@ -521,6 +521,40 @@ var _ = Describe("Tracker Client", func() {
 			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
+
+	Describe("creating a comment", func() {
+		It("POSTs", func() {
+			server.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("POST", "/services/v5/projects/99/stories/560/comments"),
+					ghttp.VerifyJSON(`{"text":"some-tracker-comment"}`),
+					verifyTrackerToken(),
+
+					ghttp.RespondWith(http.StatusOK, `{
+			          "kind": "comment",
+                      "id": 111,
+                      "story_id": 560,
+                      "text": "some-tracker-comment",
+                      "person_id": 101,
+                      "created_at": "2017-03-07T12:00:00Z",
+                      "updated_at": "2017-03-07T12:00:00Z"
+					}`),
+				),
+			)
+
+			client := tracker.NewClient("api-token")
+
+			comment, err := client.InProject(99).CreateComment(560, tracker.Comment{
+				Text: "some-tracker-comment",
+			})
+
+			Ω(comment).Should(Equal(tracker.Comment{
+				ID: 111,
+				Text: "some-tracker-comment",
+			}))
+			Ω(err).ShouldNot(HaveOccurred())
+		})
+	})
 })
 
 func verifyTrackerToken() http.HandlerFunc {
