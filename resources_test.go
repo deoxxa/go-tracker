@@ -16,13 +16,13 @@ var _ = Describe("Me", func() {
 		var me tracker.Me
 		reader := strings.NewReader(Fixture("me.json"))
 		err := json.NewDecoder(reader).Decode(&me)
-		Ω(err).ToNot(HaveOccurred())
+		Expect(err).NotTo(HaveOccurred())
 
-		Ω(me.Username).To(Equal("vader"))
-		Ω(me.Name).To(Equal("Darth Vader"))
-		Ω(me.Initials).To(Equal("DV"))
-		Ω(me.ID).To(Equal(101))
-		Ω(me.Email).To(Equal("vader@deathstar.mil"))
+		Expect(me.Username).To(Equal("vader"))
+		Expect(me.Name).To(Equal("Darth Vader"))
+		Expect(me.Initials).To(Equal("DV"))
+		Expect(me.ID).To(Equal(101))
+		Expect(me.Email).To(Equal("vader@deathstar.mil"))
 	})
 })
 
@@ -31,18 +31,18 @@ var _ = Describe("Story", func() {
 		var stories []tracker.Story
 		reader := strings.NewReader(Fixture("stories.json"))
 		err := json.NewDecoder(reader).Decode(&stories)
-		Ω(err).ToNot(HaveOccurred())
+		Expect(err).NotTo(HaveOccurred())
 		story := stories[0]
 
-		Ω(story.ID).Should(Equal(560))
-		Ω(story.Name).Should(Equal("Tractor beam loses power intermittently"))
-		Ω(story.Labels).Should(Equal([]tracker.Label{
+		Expect(story.ID).To(Equal(560))
+		Expect(story.Name).To(Equal("Tractor beam loses power intermittently"))
+		Expect(story.Labels).To(Equal([]tracker.Label{
 			{ID: 10, ProjectID: 99, Name: "some-label"},
 			{ID: 11, ProjectID: 99, Name: "some-other-label"},
 		}))
-		Ω(*story.CreatedAt).Should(Equal(time.Date(2015, 07, 20, 22, 50, 50, 0, time.UTC)))
-		Ω(*story.UpdatedAt).Should(Equal(time.Date(2015, 07, 20, 22, 51, 50, 0, time.UTC)))
-		Ω(*story.AcceptedAt).Should(Equal(time.Date(2015, 07, 20, 22, 52, 50, 0, time.UTC)))
+		Expect(*story.CreatedAt).To(Equal(time.Date(2015, 07, 20, 22, 50, 50, 0, time.UTC)))
+		Expect(*story.UpdatedAt).To(Equal(time.Date(2015, 07, 20, 22, 51, 50, 0, time.UTC)))
+		Expect(*story.AcceptedAt).To(Equal(time.Date(2015, 07, 20, 22, 52, 50, 0, time.UTC)))
 	})
 })
 
@@ -51,14 +51,14 @@ var _ = Describe("Task", func() {
 		var tasks []tracker.Task
 		reader := strings.NewReader(Fixture("tasks.json"))
 		err := json.NewDecoder(reader).Decode(&tasks)
-		Ω(err).ToNot(HaveOccurred())
+		Expect(err).NotTo(HaveOccurred())
 		task := tasks[0]
 
-		Ω(task.ID).Should(Equal(52167427))
-		Ω(task.StoryID).Should(Equal(137910061))
-		Ω(task.Description).Should(Equal("some-task-description"))
-		Ω(task.IsComplete).Should(BeTrue())
-		Ω(task.Position).Should(Equal(1))
+		Expect(task.ID).To(Equal(52167427))
+		Expect(task.StoryID).To(Equal(137910061))
+		Expect(task.Description).To(Equal("some-task-description"))
+		Expect(task.IsComplete).To(BeTrue())
+		Expect(task.Position).To(Equal(1))
 	})
 })
 
@@ -67,11 +67,11 @@ var _ = Describe("Activity", func() {
 		var activities []tracker.Activity
 		reader := strings.NewReader(Fixture("activities.json"))
 		err := json.NewDecoder(reader).Decode(&activities)
-		Ω(err).ToNot(HaveOccurred())
+		Expect(err).NotTo(HaveOccurred())
 		activity := activities[0]
 
-		Ω(activity.GUID).Should(Equal("99_45"))
-		Ω(activity.Message).Should(Equal("Darth Vader started this feature"))
+		Expect(activity.GUID).To(Equal("99_45"))
+		Expect(activity.Message).To(Equal("Darth Vader started this feature"))
 	})
 })
 
@@ -80,14 +80,14 @@ var _ = Describe("Project Memberships", func() {
 		var projectMemberships []tracker.ProjectMembership
 		reader := strings.NewReader(Fixture("project_memberships.json"))
 		err := json.NewDecoder(reader).Decode(&projectMemberships)
-		Ω(err).ToNot(HaveOccurred())
+		Expect(err).NotTo(HaveOccurred())
 
 		membership := projectMemberships[0]
-		Ω(membership.ID).Should(Equal(100))
-		Ω(membership.Person.ID).Should(Equal(100))
-		Ω(membership.Person.Name).Should(Equal("Emperor Palpatine"))
-		Ω(membership.Person.Email).Should(Equal("emperor@galacticrepublic.gov"))
-		Ω(membership.Person.Initials).Should(Equal("EP"))
-		Ω(membership.Person.Username).Should(Equal("palpatine"))
+		Expect(membership.ID).To(Equal(100))
+		Expect(membership.Person.ID).To(Equal(100))
+		Expect(membership.Person.Name).To(Equal("Emperor Palpatine"))
+		Expect(membership.Person.Email).To(Equal("emperor@galacticrepublic.gov"))
+		Expect(membership.Person.Initials).To(Equal("EP"))
+		Expect(membership.Person.Username).To(Equal("palpatine"))
 	})
 })

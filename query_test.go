@@ -14,21 +14,21 @@ var _ = Describe("Queries", func() {
 	Describe("StoriesQuery", func() {
 		It("only has date_format by default", func() {
 			query := tracker.StoriesQuery{}
-			Ω(queryString(query)).Should(Equal(""))
+			Expect(queryString(query)).To(Equal(""))
 		})
 
 		It("can query by story state", func() {
 			query := tracker.StoriesQuery{
 				State: tracker.StoryStateRejected,
 			}
-			Ω(queryString(query)).Should(Equal("with_state=rejected"))
+			Expect(queryString(query)).To(Equal("with_state=rejected"))
 		})
 
 		It("can query by story labels", func() {
 			query := tracker.StoriesQuery{
 				Label: "blocked",
 			}
-			Ω(queryString(query)).Should(Equal("with_label=blocked"))
+			Expect(queryString(query)).To(Equal("with_label=blocked"))
 		})
 
 		Describe("query by filter", func() {
@@ -38,7 +38,7 @@ var _ = Describe("Queries", func() {
 						"owner:dv",
 					},
 				}
-				Ω(queryString(query)).Should(Equal("filter=owner%3Adv"))
+				Expect(queryString(query)).To(Equal("filter=owner%3Adv"))
 			})
 
 			It("handles multiple attributes", func() {
@@ -48,7 +48,7 @@ var _ = Describe("Queries", func() {
 						"state:started",
 					},
 				}
-				Ω(queryString(query)).Should(Equal("filter=owner%3Adv+state%3Astarted"))
+				Expect(queryString(query)).To(Equal("filter=owner%3Adv+state%3Astarted"))
 			})
 		})
 
@@ -56,7 +56,7 @@ var _ = Describe("Queries", func() {
 			query := tracker.StoriesQuery{
 				Limit: 33,
 			}
-			Ω(queryString(query)).Should(Equal("limit=33"))
+			Expect(queryString(query)).To(Equal("limit=33"))
 		})
 	})
 })
