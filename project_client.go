@@ -164,6 +164,23 @@ func (p ProjectClient) CreateComment(storyID int, comment Comment) (Comment, err
 	return createdComment, err
 }
 
+func (p ProjectClient) CreateBlocker(storyID int, blocker Blocker) (Blocker, error) {
+	url := fmt.Sprintf("/stories/%d/blockers", storyID)
+	request, err := p.createRequest("POST", url, nil)
+	if err != nil {
+		return Blocker{}, err
+	}
+
+	buffer := &bytes.Buffer{}
+	json.NewEncoder(buffer).Encode(blocker)
+
+	p.addJSONBodyReader(request, buffer)
+
+	var createdBlocker Blocker
+	_, err = p.conn.Do(request, &createdBlocker)
+	return createdBlocker, err
+}
+
 func (p ProjectClient) ProjectMemberships() ([]ProjectMembership, error) {
 	request, err := p.createRequest("GET", "/memberships", nil)
 	if err != nil {
