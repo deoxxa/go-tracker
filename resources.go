@@ -26,6 +26,7 @@ type Story struct {
 	Description string     `json:"description,omitempty"`
 	Type        StoryType  `json:"story_type,omitempty"`
 	State       StoryState `json:"current_state,omitempty"`
+	Estimate    int        `json:"estimate,omitempty"`
 
 	Labels []Label `json:"labels,omitempty"`
 
