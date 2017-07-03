@@ -105,9 +105,8 @@ var _ = Describe("Tracker Client", func() {
 		})
 	})
 
-
-	Describe("retrieving a story by ID", func(){
-		It("gets one story", func(){
+	Describe("retrieving a story by ID", func() {
+		It("gets one story", func() {
 			server.AppendHandlers(
 				ghttp.CombineHandlers(
 					ghttp.VerifyRequest("GET", "/services/v5/stories/560"),
@@ -454,6 +453,38 @@ var _ = Describe("Tracker Client", func() {
 		})
 	})
 
+	Describe("udpating a story", func() {
+		It("PUTs", func() {
+			server.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("PUT", "/services/v5/projects/99/stories/1234"),
+					ghttp.VerifyJSON(`{"name":"The death star is approaching", "id": 1234 }`),
+					verifyTrackerToken(),
+
+					ghttp.RespondWith(http.StatusOK, `{
+						"id": 1234,
+						"project_id": 5678,
+						"name": "The death star is approaching"
+					}`),
+				),
+			)
+
+			client := tracker.NewClient("api-token")
+
+			story, err := client.InProject(99).UpdateStory(tracker.Story{
+				Name: "The death star is approaching",
+				ID: 1234,
+			})
+
+			Expect(story).To(Equal(tracker.Story{
+				ID:        1234,
+				ProjectID: 5678,
+				Name:      "The death star is approaching",
+			}))
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+
 	Describe("deleting a story", func() {
 		It("DELETES", func() {
 			server.AppendHandlers(
@@ -549,7 +580,7 @@ var _ = Describe("Tracker Client", func() {
 			})
 
 			Expect(comment).To(Equal(tracker.Comment{
-				ID: 111,
+				ID:   111,
 				Text: "some-tracker-comment",
 			}))
 			Expect(err).NotTo(HaveOccurred())
@@ -583,7 +614,7 @@ var _ = Describe("Tracker Client", func() {
 			})
 
 			Expect(blocker).Should(Equal(tracker.Blocker{
-				ID: 111,
+				ID:          111,
 				Description: "some-tracker-blocker",
 			}))
 			Expect(err).ShouldNot(HaveOccurred())
