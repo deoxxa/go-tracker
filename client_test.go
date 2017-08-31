@@ -9,7 +9,7 @@ import (
 
 	"github.com/onsi/gomega/ghttp"
 
-	"github.com/xoebus/go-tracker"
+	"github.com/pivotal-cf/go-tracker"
 )
 
 var _ = Describe("Tracker Client", func() {
@@ -424,14 +424,18 @@ var _ = Describe("Tracker Client", func() {
 			server.AppendHandlers(
 				ghttp.CombineHandlers(
 					ghttp.VerifyRequest("POST", "/services/v5/projects/99/stories"),
-					ghttp.VerifyJSON(`{"name":"Exhaust ports are ray shielded"}`),
+					ghttp.VerifyJSON(`{"name":"Exhaust ports are ray shielded","blockers":[{"id":5,"description":"something"}]}`),
 					verifyTrackerToken(),
 
 					ghttp.RespondWith(http.StatusOK, `{
 						"id": 1234,
 						"project_id": 5678,
 						"name": "Exhaust ports are ray shielded",
-						"url": "https://some-url.biz/1234"
+						"url": "https://some-url.biz/1234",
+						"blockers":
+						[
+						 {"id": 5, "description": "something"}
+						]
 					}`),
 				),
 			)
@@ -440,6 +444,12 @@ var _ = Describe("Tracker Client", func() {
 
 			story, err := client.InProject(99).CreateStory(tracker.Story{
 				Name: "Exhaust ports are ray shielded",
+				Blockers: []tracker.Blocker{
+					{
+						ID:          5,
+						Description: "something",
+					},
+				},
 			})
 			Expect(story).To(Equal(tracker.Story{
 				ID:        1234,
@@ -448,6 +458,12 @@ var _ = Describe("Tracker Client", func() {
 				Name: "Exhaust ports are ray shielded",
 
 				URL: "https://some-url.biz/1234",
+				Blockers: []tracker.Blocker{
+					{
+						ID:          5,
+						Description: "something",
+					},
+				},
 			}))
 			Expect(err).NotTo(HaveOccurred())
 		})

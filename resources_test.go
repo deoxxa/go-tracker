@@ -7,8 +7,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
-	"github.com/xoebus/go-tracker"
+	"github.com/pivotal-cf/go-tracker"
 )
 
 var _ = Describe("Me", func() {
@@ -44,6 +43,10 @@ var _ = Describe("Story", func() {
 		Expect(*story.CreatedAt).To(Equal(time.Date(2015, 07, 20, 22, 50, 50, 0, time.UTC)))
 		Expect(*story.UpdatedAt).To(Equal(time.Date(2015, 07, 20, 22, 51, 50, 0, time.UTC)))
 		Expect(*story.AcceptedAt).To(Equal(time.Date(2015, 07, 20, 22, 52, 50, 0, time.UTC)))
+		Expect(story.Blockers).To(Equal([]tracker.Blocker{
+			{ID: 12, Description: "some blocker"},
+			{ID: 13, Description: "some other blocker"},
+		}))
 	})
 })
 
