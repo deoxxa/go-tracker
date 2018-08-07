@@ -39,12 +39,14 @@ type Story struct {
 	Description string     `json:"description,omitempty"`
 	Type        StoryType  `json:"story_type,omitempty"`
 	State       StoryState `json:"current_state,omitempty"`
+	Estimate    int        `json:"estimate,omitempty"`
 
 	Labels []Label `json:"labels,omitempty"`
 
 	CreatedAt  *time.Time `json:"created_at,omitempty"`
 	UpdatedAt  *time.Time `json:"updated_at,omitempty"`
 	AcceptedAt *time.Time `json:"accepted_at,omitempty"`
+	Blockers   []Blocker  `json:"blockers,omitempty"`
 }
 
 type Task struct {
@@ -60,7 +62,13 @@ type Task struct {
 }
 
 type Comment struct {
+	ID   int    `json:"id,omitempty"`
 	Text string `json:"text,omitempty"`
+}
+
+type Blocker struct {
+	ID          int    `json:"id,omitempty"`
+	Description string `json:"description,omitempty"`
 }
 
 type Label struct {

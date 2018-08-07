@@ -97,3 +97,9 @@ type TaskQuery struct {}
 func (query TaskQuery) Query() url.Values {
 	return url.Values{}
 }
+
+type CommentsQuery struct {}
+
+func (query CommentsQuery) Query() url.Values {
+	return url.Values{}
+}

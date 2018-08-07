@@ -22,7 +22,7 @@ import (
 
 	"github.com/onsi/gomega/ghttp"
 
-	"github.com/xoebus/go-tracker"
+	"github.com/pivotal-cf/go-tracker"
 )
 
 var _ = Describe("Tracker Client", func() {
@@ -56,8 +56,8 @@ var _ = Describe("Tracker Client", func() {
 
 			me, err := client.Me()
 
-			Ω(err).ToNot(HaveOccurred())
-			Ω(me.Username).To(Equal("vader"))
+			Expect(err).NotTo(HaveOccurred())
+			Expect(me.Username).To(Equal("vader"))
 		})
 
 		It("returns an error if the response is not successful", func() {
@@ -69,7 +69,7 @@ var _ = Describe("Tracker Client", func() {
 
 			client := tracker.NewClient("api-token")
 			_, err := client.Me()
-			Ω(err).To(MatchError("request failed (500)"))
+			Expect(err).To(MatchError("request failed (500)"))
 		})
 
 		It("returns a helpful error if the token is invalid", func() {
@@ -81,7 +81,7 @@ var _ = Describe("Tracker Client", func() {
 
 			client := tracker.NewClient("api-token")
 			_, err := client.Me()
-			Ω(err).To(MatchError("invalid token"))
+			Expect(err).To(MatchError("invalid token"))
 		})
 
 		It("returns an error if the request fails", func() {
@@ -90,8 +90,8 @@ var _ = Describe("Tracker Client", func() {
 			client := tracker.NewClient("api-token")
 			_, err := client.Me()
 
-			Ω(err).To(HaveOccurred())
-			Ω(err.Error()).To(MatchRegexp("failed to make request"))
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(MatchRegexp("failed to make request"))
 			server = ghttp.NewServer()
 		})
 
@@ -101,8 +101,8 @@ var _ = Describe("Tracker Client", func() {
 			client := tracker.NewClient("api-token")
 			_, err := client.Me()
 
-			Ω(err).To(HaveOccurred())
-			Ω(err.Error()).To(MatchRegexp("failed to create request"))
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(MatchRegexp("failed to create request"))
 		})
 
 		It("returns an error if the response JSON is broken", func() {
@@ -113,8 +113,28 @@ var _ = Describe("Tracker Client", func() {
 			client := tracker.NewClient("api-token")
 			_, err := client.Me()
 
-			Ω(err).To(HaveOccurred())
-			Ω(err.Error()).To(MatchRegexp("invalid json response"))
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(MatchRegexp("invalid json response"))
+		})
+	})
+
+	Describe("retrieving a story by ID", func() {
+		It("gets one story", func() {
+			server.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("GET", "/services/v5/stories/560"),
+					verifyTrackerToken(),
+
+					ghttp.RespondWith(http.StatusOK, Fixture("story.json")),
+				),
+			)
+
+			client := tracker.NewClient("api-token")
+
+			story, err := client.Story(560)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(story.ID).To(Equal(560))
+			Expect(story.Name).To(Equal("Tractor beam loses power intermittently"))
 		})
 	})
 
@@ -132,9 +152,9 @@ var _ = Describe("Tracker Client", func() {
 			client := tracker.NewClient("api-token")
 
 			stories, pagination, err := client.InProject(99).Stories(tracker.StoriesQuery{})
-			Ω(stories).Should(HaveLen(4))
-			Ω(pagination).Should(BeZero())
-			Ω(err).ToNot(HaveOccurred())
+			Expect(stories).To(HaveLen(4))
+			Expect(pagination).To(BeZero())
+			Expect(err).NotTo(HaveOccurred())
 		})
 
 		It("returns pagination info allowing the caller to follow through pages themselves", func() {
@@ -166,24 +186,24 @@ var _ = Describe("Tracker Client", func() {
 			client := tracker.NewClient("api-token")
 
 			stories, pagination, err := client.InProject(99).Stories(tracker.StoriesQuery{})
-			Ω(stories).Should(HaveLen(4))
-			Ω(pagination).Should(Equal(tracker.Pagination{
+			Expect(stories).To(HaveLen(4))
+			Expect(pagination).To(Equal(tracker.Pagination{
 				Total:    1,
 				Offset:   2,
 				Limit:    3,
 				Returned: 4,
 			}))
-			Ω(err).ToNot(HaveOccurred())
+			Expect(err).NotTo(HaveOccurred())
 
 			stories, pagination, err = client.InProject(99).Stories(tracker.StoriesQuery{Offset: 1234})
-			Ω(stories).Should(HaveLen(4))
-			Ω(pagination).Should(Equal(tracker.Pagination{
+			Expect(stories).To(HaveLen(4))
+			Expect(pagination).To(Equal(tracker.Pagination{
 				Total:    5,
 				Offset:   6,
 				Limit:    7,
 				Returned: 8,
 			}))
-			Ω(err).ToNot(HaveOccurred())
+			Expect(err).NotTo(HaveOccurred())
 		})
 
 		It("allows different queries to be made", func() {
@@ -202,9 +222,9 @@ var _ = Describe("Tracker Client", func() {
 				State: tracker.StoryStateFinished,
 			}
 			stories, pagination, err := client.InProject(99).Stories(query)
-			Ω(stories).Should(HaveLen(4))
-			Ω(pagination).Should(BeZero())
-			Ω(err).ToNot(HaveOccurred())
+			Expect(stories).To(HaveLen(4))
+			Expect(pagination).To(BeZero())
+			Expect(err).NotTo(HaveOccurred())
 		})
 	})
 
@@ -222,8 +242,8 @@ var _ = Describe("Tracker Client", func() {
 			client := tracker.NewClient("api-token")
 
 			memberships, err := client.InProject(99).ProjectMemberships()
-			Ω(memberships).Should(HaveLen(7))
-			Ω(err).ToNot(HaveOccurred())
+			Expect(memberships).To(HaveLen(7))
+			Expect(err).NotTo(HaveOccurred())
 		})
 	})
 
@@ -241,8 +261,8 @@ var _ = Describe("Tracker Client", func() {
 			client := tracker.NewClient("api-token")
 
 			activities, err := client.InProject(99).StoryActivity(560, tracker.ActivityQuery{})
-			Ω(activities).Should(HaveLen(4))
-			Ω(err).ToNot(HaveOccurred())
+			Expect(activities).To(HaveLen(4))
+			Expect(err).NotTo(HaveOccurred())
 		})
 
 		It("allows different queries to be made", func() {
@@ -269,8 +289,8 @@ var _ = Describe("Tracker Client", func() {
 				SinceVersion:   1,
 			}
 			activities, err := client.InProject(99).StoryActivity(560, query)
-			Ω(activities).Should(HaveLen(4))
-			Ω(err).ToNot(HaveOccurred())
+			Expect(activities).To(HaveLen(4))
+			Expect(err).NotTo(HaveOccurred())
 		})
 	})
 
@@ -288,8 +308,8 @@ var _ = Describe("Tracker Client", func() {
 			client := tracker.NewClient("api-token")
 
 			tasks, err := client.InProject(99).StoryTasks(560, tracker.TaskQuery{})
-			Ω(tasks).Should(HaveLen(3))
-			Ω(err).ToNot(HaveOccurred())
+			Expect(tasks).To(HaveLen(3))
+			Expect(err).NotTo(HaveOccurred())
 		})
 
 		It("allows different queries to be made", func() {
@@ -316,8 +336,55 @@ var _ = Describe("Tracker Client", func() {
 				SinceVersion:   1,
 			}
 			activities, err := client.InProject(99).StoryActivity(560, query)
-			Ω(activities).Should(HaveLen(4))
-			Ω(err).ToNot(HaveOccurred())
+			Expect(activities).To(HaveLen(4))
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+
+	Describe("listing a story's comments", func() {
+		It("gets the story's comments", func() {
+			server.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("GET", "/services/v5/projects/99/stories/560/comments"),
+					verifyTrackerToken(),
+
+					ghttp.RespondWith(http.StatusOK, Fixture("comments.json")),
+				),
+			)
+
+			client := tracker.NewClient("api-token")
+
+			tasks, err := client.InProject(99).StoryComments(560, tracker.CommentsQuery{})
+			Expect(tasks).To(HaveLen(2))
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("allows different queries to be made", func() {
+			server.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest(
+						"GET",
+						"/services/v5/projects/99/stories/560/activity",
+						"limit=2&occurred_after=1000000000000&occurred_before=1433091819000&offset=1&since_version=1",
+					),
+					verifyTrackerToken(),
+
+					ghttp.RespondWith(http.StatusOK, Fixture("activities.json")),
+				),
+			)
+
+			client := tracker.NewClient("api-token")
+
+			query := tracker.ActivityQuery{
+				Limit:          2,
+				Offset:         1,
+				OccurredBefore: 1433091819000,
+				OccurredAfter:  1000000000000,
+				SinceVersion:   1,
+			}
+			activities, err := client.InProject(99).StoryActivity(560, query)
+			Expect(activities).To(HaveLen(4))
+			Expect(err).NotTo(HaveOccurred())
 		})
 	})
 
@@ -336,7 +403,7 @@ var _ = Describe("Tracker Client", func() {
 			client := tracker.NewClient("api-token")
 
 			err := client.InProject(99).DeliverStory(15225523)
-			Ω(err).ShouldNot(HaveOccurred())
+			Expect(err).NotTo(HaveOccurred())
 		})
 
 		It("HTTP PUTs it in its place with a comment", func() {
@@ -361,7 +428,7 @@ var _ = Describe("Tracker Client", func() {
 
 			comment := `some delive"}ry comment with tricky text`
 			err := client.InProject(99).DeliverStoryWithComment(15225523, comment)
-			Ω(err).ShouldNot(HaveOccurred())
+			Expect(err).NotTo(HaveOccurred())
 		})
 	})
 
@@ -370,14 +437,18 @@ var _ = Describe("Tracker Client", func() {
 			server.AppendHandlers(
 				ghttp.CombineHandlers(
 					ghttp.VerifyRequest("POST", "/services/v5/projects/99/stories"),
-					ghttp.VerifyJSON(`{"name":"Exhaust ports are ray shielded"}`),
+					ghttp.VerifyJSON(`{"name":"Exhaust ports are ray shielded","blockers":[{"id":5,"description":"something"}]}`),
 					verifyTrackerToken(),
 
 					ghttp.RespondWith(http.StatusOK, `{
 						"id": 1234,
 						"project_id": 5678,
 						"name": "Exhaust ports are ray shielded",
-						"url": "https://some-url.biz/1234"
+						"url": "https://some-url.biz/1234",
+						"blockers":
+						[
+						 {"id": 5, "description": "something"}
+						]
 					}`),
 				),
 			)
@@ -386,16 +457,60 @@ var _ = Describe("Tracker Client", func() {
 
 			story, err := client.InProject(99).CreateStory(tracker.Story{
 				Name: "Exhaust ports are ray shielded",
+				Blockers: []tracker.Blocker{
+					{
+						ID:          5,
+						Description: "something",
+					},
+				},
 			})
-			Ω(story).Should(Equal(tracker.Story{
+			Expect(story).To(Equal(tracker.Story{
 				ID:        1234,
 				ProjectID: 5678,
 
 				Name: "Exhaust ports are ray shielded",
 
 				URL: "https://some-url.biz/1234",
+				Blockers: []tracker.Blocker{
+					{
+						ID:          5,
+						Description: "something",
+					},
+				},
 			}))
-			Ω(err).ShouldNot(HaveOccurred())
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+
+	Describe("udpating a story", func() {
+		It("PUTs", func() {
+			server.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("PUT", "/services/v5/projects/99/stories/1234"),
+					ghttp.VerifyJSON(`{"name":"The death star is approaching", "id": 1234 }`),
+					verifyTrackerToken(),
+
+					ghttp.RespondWith(http.StatusOK, `{
+						"id": 1234,
+						"project_id": 5678,
+						"name": "The death star is approaching"
+					}`),
+				),
+			)
+
+			client := tracker.NewClient("api-token")
+
+			story, err := client.InProject(99).UpdateStory(tracker.Story{
+				Name: "The death star is approaching",
+				ID: 1234,
+			})
+
+			Expect(story).To(Equal(tracker.Story{
+				ID:        1234,
+				ProjectID: 5678,
+				Name:      "The death star is approaching",
+			}))
+			Expect(err).NotTo(HaveOccurred())
 		})
 	})
 
@@ -411,7 +526,7 @@ var _ = Describe("Tracker Client", func() {
 			)
 			client := tracker.NewClient("api-token")
 			err := client.InProject(99).DeleteStory(1234)
-			Ω(err).ShouldNot(HaveOccurred())
+			Expect(err).NotTo(HaveOccurred())
 		})
 		Context("when the delete is not successful", func() {
 			It("returns error saying request failed", func() {
@@ -425,7 +540,7 @@ var _ = Describe("Tracker Client", func() {
 				)
 				client := tracker.NewClient("api-token")
 				err := client.InProject(99).DeleteStory(1234)
-				Ω(err).Should(Equal(errors.New("request failed (500)")))
+				Expect(err).To(Equal(errors.New("request failed (500)")))
 			})
 		})
 	})
@@ -456,14 +571,82 @@ var _ = Describe("Tracker Client", func() {
 				Position:    1,
 			})
 
-			Ω(task).Should(Equal(tracker.Task{
+			Expect(task).To(Equal(tracker.Task{
 				ID:          1234,
 				StoryID:     560,
 				Description: "some-tracker-task",
 				Position:    1,
 				IsComplete:  false,
 			}))
-			Ω(err).ShouldNot(HaveOccurred())
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+
+	Describe("creating a comment", func() {
+		It("POSTs", func() {
+			server.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("POST", "/services/v5/projects/99/stories/560/comments"),
+					ghttp.VerifyJSON(`{"text":"some-tracker-comment"}`),
+					verifyTrackerToken(),
+
+					ghttp.RespondWith(http.StatusOK, `{
+			          "kind": "comment",
+                      "id": 111,
+                      "story_id": 560,
+                      "text": "some-tracker-comment",
+                      "person_id": 101,
+                      "created_at": "2017-03-07T12:00:00Z",
+                      "updated_at": "2017-03-07T12:00:00Z"
+					}`),
+				),
+			)
+
+			client := tracker.NewClient("api-token")
+
+			comment, err := client.InProject(99).CreateComment(560, tracker.Comment{
+				Text: "some-tracker-comment",
+			})
+
+			Expect(comment).To(Equal(tracker.Comment{
+				ID:   111,
+				Text: "some-tracker-comment",
+			}))
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+
+	Describe("creating a blocker", func() {
+		It("POSTs", func() {
+			server.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("POST", "/services/v5/projects/99/stories/560/blockers"),
+					ghttp.VerifyJSON(`{"description":"some-tracker-blocker"}`),
+					verifyTrackerToken(),
+
+					ghttp.RespondWith(http.StatusOK, `{
+			          "kind": "blocker",
+                      "id": 111,
+                      "story_id": 560,
+                      "description": "some-tracker-blocker",
+                      "person_id": 101,
+                      "created_at": "2017-03-07T12:00:00Z",
+                      "updated_at": "2017-03-07T12:00:00Z"
+					}`),
+				),
+			)
+
+			client := tracker.NewClient("api-token")
+
+			blocker, err := client.InProject(99).CreateBlocker(560, tracker.Blocker{
+				Description: "some-tracker-blocker",
+			})
+
+			Expect(blocker).Should(Equal(tracker.Blocker{
+				ID:          111,
+				Description: "some-tracker-blocker",
+			}))
+			Expect(err).ShouldNot(HaveOccurred())
 		})
 	})
 })

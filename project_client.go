@@ -68,6 +68,18 @@ func (p ProjectClient) StoryTasks(storyId int, query TaskQuery) (tasks []Task, e
 	return tasks, err
 }
 
+func (p ProjectClient) StoryComments(storyId int, query CommentsQuery) (comments []Comment, err error) {
+	url := fmt.Sprintf("/stories/%d/comments", storyId)
+
+	request, err := p.createRequest("GET", url, query.Query())
+	if err != nil {
+		return comments, err
+	}
+
+	_, err = p.conn.Do(request, &comments)
+	return comments, err
+}
+
 func (p ProjectClient) DeliverStoryWithComment(storyId int, comment string) error {
 	err := p.DeliverStory(storyId)
 	if err != nil {
@@ -120,6 +132,23 @@ func (p ProjectClient) CreateStory(story Story) (Story, error) {
 	return createdStory, err
 }
 
+func (p ProjectClient) UpdateStory(story Story) (Story, error) {
+	url := fmt.Sprintf("/stories/%d", story.ID)
+	request, err := p.createRequest("PUT", url, nil)
+	if err != nil {
+		return Story{}, err
+	}
+
+	buffer := &bytes.Buffer{}
+	json.NewEncoder(buffer).Encode(story)
+
+	p.addJSONBodyReader(request, buffer)
+
+	var updatedStory Story
+	_, err = p.conn.Do(request, &updatedStory)
+	return updatedStory, nil
+}
+
 func (p ProjectClient) DeleteStory(storyId int) error {
 	url := fmt.Sprintf("/stories/%d", storyId)
 	request, err := p.createRequest("DELETE", url, nil)
@@ -146,6 +175,40 @@ func (p ProjectClient) CreateTask(storyID int, task Task) (Task, error) {
 	var createdTask Task
 	_, err = p.conn.Do(request, &createdTask)
 	return createdTask, err
+}
+
+func (p ProjectClient) CreateComment(storyID int, comment Comment) (Comment, error) {
+	url := fmt.Sprintf("/stories/%d/comments", storyID)
+	request, err := p.createRequest("POST", url, nil)
+	if err != nil {
+		return Comment{}, err
+	}
+
+	buffer := &bytes.Buffer{}
+	json.NewEncoder(buffer).Encode(comment)
+
+	p.addJSONBodyReader(request, buffer)
+
+	var createdComment Comment
+	_, err = p.conn.Do(request, &createdComment)
+	return createdComment, err
+}
+
+func (p ProjectClient) CreateBlocker(storyID int, blocker Blocker) (Blocker, error) {
+	url := fmt.Sprintf("/stories/%d/blockers", storyID)
+	request, err := p.createRequest("POST", url, nil)
+	if err != nil {
+		return Blocker{}, err
+	}
+
+	buffer := &bytes.Buffer{}
+	json.NewEncoder(buffer).Encode(blocker)
+
+	p.addJSONBodyReader(request, buffer)
+
+	var createdBlocker Blocker
+	_, err = p.conn.Do(request, &createdBlocker)
+	return createdBlocker, err
 }
 
 func (p ProjectClient) ProjectMemberships() ([]ProjectMembership, error) {
