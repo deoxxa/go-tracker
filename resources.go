@@ -25,8 +25,40 @@ type Person struct {
 	Email    string `json:"email"`
 }
 
+type TimeZone struct {
+	Kind      string `json:"kind"`
+	OlsonName string `json:"olson_name"`
+	Offset    string `json:"offset"`
+}
+
 type Project struct {
-	Id int
+	ID                           int       `json:"id"`
+	Kind                         string    `json:"kind"`
+	Name                         string    `json:"name"`
+	Version                      int       `json:"version"`
+	IterationLength              int       `json:"iteration_length"`
+	WeekStartDay                 string    `json:"week_start_day"`
+	PointScale                   string    `json:"point_scale"`
+	PointScaleIsCustom           bool      `json:"point_scale_is_custom"`
+	BugsAndChoresAreEstimatable  bool      `json:"bugs_and_chores_are_estimatable"`
+	AutomaticPlanning            bool      `json:"automatic_planning"`
+	EnableTasks                  bool      `json:"enable_tasks"`
+	TimeZone                     TimeZone  `json:"time_zone"`
+	VelocityAveragedOver         int       `json:"velocity_averaged_over"`
+	NumberOfDoneIterationsToShow int       `json:"number_of_done_iterations_to_show"`
+	HasGoogleDomain              bool      `json:"has_google_domain"`
+	EnableIncomingEmails         bool      `json:"enable_incoming_emails"`
+	InitialVelocity              int       `json:"initial_velocity"`
+	Public                       bool      `json:"public"`
+	AtomEnabled                  bool      `json:"atom_enabled"`
+	ProjectType                  string    `json:"project_type"`
+	StartDate                    string    `json:"start_date"`
+	StartTime                    time.Time `json:"start_time"`
+	CreatedAt                    time.Time `json:"created_at"`
+	UpdatedAt                    time.Time `json:"updated_at"`
+	AccountID                    int       `json:"account_id"`
+	CurrentIterationNumber       int       `json:"current_iteration_number"`
+	EnableFollowing              bool      `json:"enable_following"`
 }
 
 type Story struct {
@@ -47,6 +79,17 @@ type Story struct {
 	UpdatedAt  *time.Time `json:"updated_at,omitempty"`
 	AcceptedAt *time.Time `json:"accepted_at,omitempty"`
 	Blockers   []Blocker  `json:"blockers,omitempty"`
+}
+
+type NewStory struct {
+	Name        string     `json:"name,omitempty"`
+	Description string     `json:"description,omitempty"`
+	Type        StoryType  `json:"story_type,omitempty"`
+	State       StoryState `json:"current_state,omitempty"`
+	Labels      []Label    `json:"labels,omitempty"`
+	Tasks       []Task     `json:"tasks,omitempty"`
+	StoryIDs    []int      `json:"story_ids,omitempty"`
+	OwnerIDs    []int      `json:"owner_ids,omitempty"`
 }
 
 type Task struct {
@@ -72,8 +115,11 @@ type Blocker struct {
 }
 
 type Label struct {
-	ID        int `json:"id,omitempty"`
-	ProjectID int `json:"project_id,omitempty"`
+	Kind      string     `json:"kind,omitempty"`
+	ID        int        `json:"id,omitempty"`
+	ProjectID int        `json:"project_id,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
 
 	Name string `json:"name"`
 }

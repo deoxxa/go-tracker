@@ -29,6 +29,20 @@ type ProjectClient struct {
 	conn connection
 }
 
+func (p ProjectClient) Project() (*Project, error) {
+	request, err := p.createRequest("GET", "/stories", url.Values{})
+	if err != nil {
+		return nil, err
+	}
+
+	var project Project
+	if _, err := p.conn.Do(request, &project); err != nil {
+		return nil, err
+	}
+
+	return &project, err
+}
+
 func (p ProjectClient) Stories(query StoriesQuery) ([]Story, Pagination, error) {
 	request, err := p.createRequest("GET", "/stories", query.Query())
 	if err != nil {
@@ -42,6 +56,21 @@ func (p ProjectClient) Stories(query StoriesQuery) ([]Story, Pagination, error) 
 	}
 
 	return stories, pagination, err
+}
+
+func (p ProjectClient) Labels(query LabelsQuery) ([]Label, Pagination, error) {
+	request, err := p.createRequest("GET", "/labels", query.Query())
+	if err != nil {
+		return nil, Pagination{}, err
+	}
+
+	var labels []Label
+	pagination, err := p.conn.Do(request, &labels)
+	if err != nil {
+		return nil, Pagination{}, err
+	}
+
+	return labels, pagination, err
 }
 
 func (p ProjectClient) StoryActivity(storyId int, query ActivityQuery) (activities []Activity, err error) {
@@ -116,7 +145,7 @@ func (p ProjectClient) DeliverStory(storyId int) error {
 	return err
 }
 
-func (p ProjectClient) CreateStory(story Story) (Story, error) {
+func (p ProjectClient) CreateStory(story NewStory) (Story, error) {
 	request, err := p.createRequest("POST", "/stories", nil)
 	if err != nil {
 		return Story{}, err
@@ -130,6 +159,23 @@ func (p ProjectClient) CreateStory(story Story) (Story, error) {
 	var createdStory Story
 	_, err = p.conn.Do(request, &createdStory)
 	return createdStory, err
+}
+
+func (p ProjectClient) UpdateStoryLabels(storyID int, labels []string) (Story, error) {
+	url := fmt.Sprintf("/stories/%d", storyID)
+	request, err := p.createRequest("PUT", url, nil)
+	if err != nil {
+		return Story{}, err
+	}
+
+	buffer := &bytes.Buffer{}
+	json.NewEncoder(buffer).Encode(map[string]interface{}{"labels": labels})
+
+	p.addJSONBodyReader(request, buffer)
+
+	var updatedStory Story
+	_, err = p.conn.Do(request, &updatedStory)
+	return updatedStory, err
 }
 
 func (p ProjectClient) UpdateStory(story Story) (Story, error) {
@@ -146,7 +192,7 @@ func (p ProjectClient) UpdateStory(story Story) (Story, error) {
 
 	var updatedStory Story
 	_, err = p.conn.Do(request, &updatedStory)
-	return updatedStory, nil
+	return updatedStory, err
 }
 
 func (p ProjectClient) DeleteStory(storyId int) error {

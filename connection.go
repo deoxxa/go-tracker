@@ -17,6 +17,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -118,10 +119,9 @@ func (c connection) sendRequest(request *http.Request) (*http.Response, error) {
 		return nil, errors.New("invalid token")
 	}
 
-	if response.StatusCode != http.StatusOK &&
-		response.StatusCode != http.StatusCreated &&
-		response.StatusCode != http.StatusNoContent {
-		return nil, fmt.Errorf("request failed (%d)", response.StatusCode)
+	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusNoContent {
+		d, _ := ioutil.ReadAll(response.Body)
+		return nil, fmt.Errorf("request failed (%s): %s", response.Status, string(d))
 	}
 
 	return response, nil
