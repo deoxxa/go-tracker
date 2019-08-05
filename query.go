@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 )
 
 type Query interface {
@@ -27,6 +28,13 @@ type StoriesQuery struct {
 	State  StoryState
 	Label  string
 	Filter []string
+
+	AcceptedBefore time.Time
+	AcceptedAfter  time.Time
+	CreatedBefore  time.Time
+	CreatedAfter   time.Time
+	UpdatedBefore  time.Time
+	UpdatedAfter   time.Time
 
 	Limit  int
 	Offset int
@@ -45,6 +53,25 @@ func (query StoriesQuery) Query() url.Values {
 
 	if len(query.Filter) != 0 {
 		params.Set("filter", strings.Join(query.Filter, " "))
+	}
+
+	if !query.AcceptedBefore.IsZero() {
+		params.Set("accepted_before", query.AcceptedBefore.Format(time.RFC3339))
+	}
+	if !query.AcceptedAfter.IsZero() {
+		params.Set("accepted_after", query.AcceptedAfter.Format(time.RFC3339))
+	}
+	if !query.CreatedBefore.IsZero() {
+		params.Set("created_before", query.CreatedBefore.Format(time.RFC3339))
+	}
+	if !query.CreatedAfter.IsZero() {
+		params.Set("created_after", query.CreatedAfter.Format(time.RFC3339))
+	}
+	if !query.UpdatedBefore.IsZero() {
+		params.Set("updated_before", query.UpdatedBefore.Format(time.RFC3339))
+	}
+	if !query.UpdatedAfter.IsZero() {
+		params.Set("updated_after", query.UpdatedAfter.Format(time.RFC3339))
 	}
 
 	if query.Limit != 0 {
