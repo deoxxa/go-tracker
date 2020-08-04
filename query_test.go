@@ -14,9 +14,9 @@
 package tracker_test
 
 import (
+	"github.com/deoxxa/go-tracker"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/xoebus/go-tracker"
 )
 
 var _ = Describe("Queries", func() {

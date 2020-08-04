@@ -22,7 +22,7 @@ import (
 
 	"github.com/onsi/gomega/ghttp"
 
-	"github.com/pivotal-cf/go-tracker"
+	"github.com/deoxxa/go-tracker"
 )
 
 var _ = Describe("Tracker Client", func() {
@@ -502,7 +502,7 @@ var _ = Describe("Tracker Client", func() {
 
 			story, err := client.InProject(99).UpdateStory(tracker.Story{
 				Name: "The death star is approaching",
-				ID: 1234,
+				ID:   1234,
 			})
 
 			Expect(story).To(Equal(tracker.Story{

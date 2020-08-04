@@ -18,9 +18,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/deoxxa/go-tracker"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/pivotal-cf/go-tracker"
 )
 
 var _ = Describe("Me", func() {
